@@ -2,43 +2,52 @@
 import { onMounted, ref, inject, nextTick, watch } from 'vue'
 import {
 	remapEvents,
+	propsBinder,
 	WINDOW_OR_GLOBAL,
 	GLOBAL_LEAFLET_OPT,
 } from '@vue-leaflet/vue-leaflet/src/utils.js'
 import { render } from '@vue-leaflet/vue-leaflet/src/functions/layer'
 
 import * as C from 'leaflet-coverage'
+
 import { turboPalette } from '../lib/palettes'
 
-const props = {
+export const props = {
 	covJson: {
-		default: null,
 		required: true,
 	},
 	parameter: {
 		type: String,
-		required: true
+		required: true,
 	},
 	paletteExtent: {
 		type: Array,
-		required: true
+		required: true,
 	},
 	palette: {
 		type: Object,
-		default: turboPalette
+		default: turboPalette,
 	},
 	saturateMin: {
 		type: Boolean,
-		default: true
+		default: true,
 	},
 	saturateMax: {
 		type: Boolean,
-		default: true
+		default: true,
 	},
 	time: {
 		type: Date,
-		required: false
-	}
+		required: false,
+	},
+	pane: {
+		type: String,
+		default: 'overlayPane',
+	},
+	attribution: {
+		type: String,
+		default: null,
+	},
 }
 
 /**
@@ -50,10 +59,11 @@ export default {
 	setup(props, context) {
 		const leafletRef = ref({})
 		const ready = ref(false)
-		const useGlobalLeaflet = inject(GLOBAL_LEAFLET_OPT)
+
+		// These are provided when this component is used in an LMap from `@vue-leaflet/vue-leaflet`
 		const addLayer = inject('addLayer')
 		const removeLayer = inject('removeLayer')
-		
+
 		const loadCovJsonLayer = () => {
 			ready.value = false
 			// If we have a layer already, remove it.
@@ -68,45 +78,50 @@ export default {
 			leafletRef.value = C.dataLayer(props.covJson, {
 				parameter: props.parameter,
 				paletteExtent: props.paletteExtent,
-				palette: turboPalette,
+				palette: props.palette,
 				extendMax: props.saturateMax,
 				extendMin: props.saturateMin,
 				time: props.time,
+				attribution: props.attribution,
 			})
+
+			// TODO This should work, but it doesn't in my setup.
+			// But this is true of *any* popup, so it's not specific to a time series plot.
+			// leafletRef.value.bindPopup(new C.TimeSeriesPlot(props.covJson))
 
 			const listeners = remapEvents(context.attrs)
 			DomEventFunc.on(leafletRef.value, listeners)
-
-			// TODO Need to bind click events etc.  Perhaps this is related?
-			// propsBinder(methods, leafletRef.value, props)
+			propsBinder({}, leafletRef.value, props)
 
 			addLayer({
-				// Need to add layer-specific props here, things like "pane", "opacity", and whatever
-				// ...props,
-				// Not sure what this is going to require yet.
-				// ...methods,
+				...props,
 				leafletObject: leafletRef.value,
 			})
 			ready.value = true
+			nextTick(() => context.emit('ready', leafletRef.value))
+		}
+
+		const setTime = () => {
+			if (Object.keys(leafletRef.value).length === 0) {
+				return
+			}
+			leafletRef.value.time = props.time
 		}
 
 		let DomEventFunc = null
+		const useGlobalLeaflet = inject(GLOBAL_LEAFLET_OPT)
 		onMounted(async () => {
 			const { DomEvent } = useGlobalLeaflet
 				? WINDOW_OR_GLOBAL.L
 				: await import('leaflet/dist/leaflet-src.esm')
 			DomEventFunc = DomEvent
-
 			loadCovJsonLayer()
-			watch(() => props.covJson, loadCovJsonLayer)
 
-			ready.value = true
-			// TODO Not sure if this needs to go in the loadCovJson method.
-			nextTick(() => context.emit('ready', leafletRef.value))
+			watch(() => props.covJson, loadCovJsonLayer)
+			watch(() => props.time, setTime)
 		})
 		return { ready, leafletObject: leafletRef }
 	},
-
 	render() {
 		return render(this.ready, this.$slots)
 	},
