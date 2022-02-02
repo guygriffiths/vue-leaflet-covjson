@@ -22,90 +22,6 @@ function interpolate(c1: Colour, c2: Colour, fracFromC2: number): Colour {
 	}
 }
 
-export function generatePalette(colours: Colour[], bands: number): Palette {
-	const targetPalette: Palette = {
-		steps: bands,
-		red: [],
-		green: [],
-		blue: []
-	}
-
-	targetPalette.red.push(colours[0].r)
-	targetPalette.green.push(colours[0].g)
-	targetPalette.blue.push(colours[0].b)
-	let lastIndex = 0
-	for (let i = 1; i < colours.length; i++) {
-		const finalTargetIndex = Math.round(
-			((bands - 1) * i) / (colours.length - 1)
-		)
-		for (let j = lastIndex + 1; j < finalTargetIndex; j++) {
-			/*
-			 * Work out how much we need from the previous colour
-			 * and how much from the new colour
-			 */
-			const fracFromThis = (j - lastIndex) / (finalTargetIndex - lastIndex)
-			const blend = interpolate(colours[i - 1], colours[i], fracFromThis)
-			targetPalette.red.push(blend.r)
-			targetPalette.green.push(blend.g)
-			targetPalette.blue.push(blend.b)
-		}
-		lastIndex = finalTargetIndex
-
-		targetPalette.red.push(colours[i].r)
-		targetPalette.green.push(colours[i].g)
-		targetPalette.blue.push(colours[i].b)
-	}
-	return targetPalette
-}
-
-export const divergingPalette = generatePalette([
-	// rgb(135, 97, 69)
-	{ r: 135, g: 97, b: 69 },
-	{ r: 245, g: 245, b: 245 },
-	{ r: 69, g: 107, b: 135 }
-	// rgb(69, 107, 135)
-], 255)
-
-// export const divergingPalette = generatePalette([
-// 	{ r: 216, g: 179, b: 101 },
-// 	{ r: 245, g: 245, b: 245 },
-// 	{ r: 90, g: 180, b: 172 }
-// ], 255)
-
-export const categoricalPalette = directPalette([
-	'#000000',
-	'#ffff64',
-	'#00a000',
-	'#aac800',
-	'#003c00',
-	'#003c00',
-	'#005000',
-	'#285000',
-	'#285000',
-	'#286400',
-	'#788200',
-	'#8ca000',
-	'#be9600',
-	'#966400',
-	'#966400',
-	'#966400',
-	'#ffb432',
-	'#ffdcd2',
-	'#ffebaf',
-	'#ffc864',
-	'#ffd278',
-	'#ffebaf',
-	'#00785a',
-	'#009678',
-	'#00dc82',
-	'#c31400',
-	'#fff5d7',
-	'#dcdcdc',
-	'#fff5d7',
-	'#0046c8',
-	'#ffffff'
-])
-
 const plasmaData: Colour[] = [
 	{ r: 13, g: 8, b: 135 },
 	{ r: 27, g: 6, b: 141 },
@@ -159,8 +75,6 @@ const plasmaData: Colour[] = [
 	{ r: 240, g: 249, b: 33 }
 ]
 
-export const plasmaPalette = generatePalette(plasmaData, 255)
-
 const cubeData = [
 	{ r: 131, g: 12, b: 171 },
 	{ r: 133, g: 45, b: 206 },
@@ -181,17 +95,6 @@ const cubeData = [
 	{ r: 214, g: 245, b: 90 },
 	{ r: 224, g: 255, b: 90 }
 ]
-
-export const heatPalette = generatePalette(cubeData, 255)
-// export const heatPalette = generatePalette(
-// 	[
-// 		{ r: 149, g: 225, b: 191 },
-// 		{ r: 255, g: 103, b: 29 }
-// 	],
-// 	255
-// )
-
-export const turboPalette = generateTurboPalette()
 
 function generateTurboPalette(): Palette {
 	const turboData = [
@@ -467,3 +370,82 @@ function generateTurboPalette(): Palette {
 
 	return turbo
 }
+
+export function generatePalette(colours: Colour[], bands: number): Palette {
+	const targetPalette: Palette = {
+		steps: bands,
+		red: [],
+		green: [],
+		blue: []
+	}
+
+	targetPalette.red.push(colours[0].r)
+	targetPalette.green.push(colours[0].g)
+	targetPalette.blue.push(colours[0].b)
+	let lastIndex = 0
+	for (let i = 1; i < colours.length; i++) {
+		const finalTargetIndex = Math.round(
+			((bands - 1) * i) / (colours.length - 1)
+		)
+		for (let j = lastIndex + 1; j < finalTargetIndex; j++) {
+			/*
+			 * Work out how much we need from the previous colour
+			 * and how much from the new colour
+			 */
+			const fracFromThis = (j - lastIndex) / (finalTargetIndex - lastIndex)
+			const blend = interpolate(colours[i - 1], colours[i], fracFromThis)
+			targetPalette.red.push(blend.r)
+			targetPalette.green.push(blend.g)
+			targetPalette.blue.push(blend.b)
+		}
+		lastIndex = finalTargetIndex
+
+		targetPalette.red.push(colours[i].r)
+		targetPalette.green.push(colours[i].g)
+		targetPalette.blue.push(colours[i].b)
+	}
+	return targetPalette
+}
+
+export const plasmaPalette = generatePalette(plasmaData, 255)
+export const heatPalette = generatePalette(cubeData, 255)
+export const turboPalette = generateTurboPalette()
+export const brGrDivergingPalette = generatePalette([
+	{ r: 135, g: 97, b: 69 },
+	{ r: 245, g: 245, b: 245 },
+	{ r: 69, g: 107, b: 135 }
+], 255)
+
+export const categoricalPalette = directPalette([
+	'#000000',
+	'#ffff64',
+	'#00a000',
+	'#aac800',
+	'#003c00',
+	'#003c00',
+	'#005000',
+	'#285000',
+	'#285000',
+	'#286400',
+	'#788200',
+	'#8ca000',
+	'#be9600',
+	'#966400',
+	'#966400',
+	'#966400',
+	'#ffb432',
+	'#ffdcd2',
+	'#ffebaf',
+	'#ffc864',
+	'#ffd278',
+	'#ffebaf',
+	'#00785a',
+	'#009678',
+	'#00dc82',
+	'#c31400',
+	'#fff5d7',
+	'#dcdcdc',
+	'#fff5d7',
+	'#0046c8',
+	'#ffffff'
+])
