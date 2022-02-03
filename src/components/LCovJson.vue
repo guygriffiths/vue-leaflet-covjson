@@ -1,5 +1,5 @@
 <script>
-import { onMounted, ref, inject, nextTick, watch } from 'vue'
+import { onMounted, onUnmounted, ref, inject, nextTick, watch } from 'vue'
 import {
 	remapEvents,
 	propsBinder,
@@ -119,6 +119,12 @@ export default {
 
 			watch(() => props.covJson, loadCovJsonLayer)
 			watch(() => props.time, setTime)
+		})
+
+		onUnmounted(() => {
+			if (Object.keys(leafletRef.value).length > 0) {
+				removeLayer({ leafletObject: leafletRef.value })
+			}
 		})
 		return { ready, leafletObject: leafletRef }
 	},
