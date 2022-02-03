@@ -9,18 +9,12 @@ export default defineConfig(({ command }) => ({
 			entry: path.resolve(__dirname, 'src/index.js'),
 			name: 'Vue Leaflet CovJSON',
 			fileName: (format) => `vue-leaflet-covjson.${format}.js`,
+			formats: ['es'],
 		},
 		rollupOptions: {
 			// make sure to externalize deps that shouldn't be bundled
 			// into your library
-			external: ['vue'],
-			output: {
-				// Provide global variables to use in the UMD build
-				// for externalized deps
-				globals: {
-					vue: 'Vue',
-				},
-			},
+			external: ['vue', 'vue-leaflet', 'leaflet-coverage']
 		},
 	},
 	resolve: {
