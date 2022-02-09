@@ -1,7 +1,6 @@
 <script>
 import { onMounted, ref, inject, nextTick, h, watch } from 'vue'
 import {
-	remapEvents,
 	propsBinder,
 	WINDOW_OR_GLOBAL,
 	GLOBAL_LEAFLET_OPT,
