@@ -1,135 +1,106 @@
 <script>
-import { onMounted, onUnmounted, ref, inject, nextTick, watch } from 'vue'
+import { onMounted, ref, inject, nextTick, h, watch } from 'vue'
 import {
 	remapEvents,
 	propsBinder,
 	WINDOW_OR_GLOBAL,
 	GLOBAL_LEAFLET_OPT,
 } from '@vue-leaflet/vue-leaflet/src/utils.js'
-import { render } from '@vue-leaflet/vue-leaflet/src/functions/layer'
+import {
+	props,
+	setup as covJSONSetup,
+	geoJsonFromCoverage,
+} from '../functions/covJSON'
+import { asTime, indexOfNearest } from 'covutils'
 
-import * as C from 'leaflet-coverage'
-
-import { turboPalette } from '../lib/palettes'
-
-export const props = {
-	covJson: {
-		required: true,
-	},
-	parameter: {
-		type: String,
-		required: true,
-	},
-	paletteExtent: {
-		type: Array,
-		required: true,
-	},
-	palette: {
-		type: Object,
-		default: turboPalette,
-	},
-	saturateMin: {
-		type: Boolean,
-		default: true,
-	},
-	saturateMax: {
-		type: Boolean,
-		default: true,
-	},
-	time: {
-		type: Date,
-		required: false,
-	},
-	pane: {
-		type: String,
-		default: 'overlayPane',
-	},
-	attribution: {
-		type: String,
-		default: null,
-	},
-}
-
-/**
- * CoverageJSON component, allows you to add CoverageJSON layers to a Leaflet map
- */
 export default {
-	name: 'LCovJson',
 	props,
 	setup(props, context) {
 		const leafletRef = ref({})
 		const ready = ref(false)
 
-		// These are provided when this component is used in an LMap from `@vue-leaflet/vue-leaflet`
+		const useGlobalLeaflet = inject(GLOBAL_LEAFLET_OPT)
 		const addLayer = inject('addLayer')
-		const removeLayer = inject('removeLayer')
 
-		const loadCovJsonLayer = () => {
-			ready.value = false
-			// If we have a layer already, remove it.
-			if (Object.keys(leafletRef.value).length > 0) {
-				removeLayer({ leafletObject: leafletRef.value })
-			}
-			if (props.covJson === null) {
-				// If we don't have any coverage JSON, we can't plot it
-				ready.value = true
+		const { methods, options } = covJSONSetup(props, leafletRef)
+
+		const loadCovJsonLayer = async () => {
+			if (!props.covjson || Object.keys(props.covjson).length === 0) {
+				// No coverageJson to load
 				return
 			}
-			leafletRef.value = C.dataLayer(props.covJson, {
-				parameter: props.parameter,
-				paletteExtent: props.paletteExtent,
-				palette: props.palette,
-				extendMax: props.saturateMax,
-				extendMin: props.saturateMin,
-				time: props.time,
-				attribution: props.attribution,
+
+			const { geoJSON, DomEvent } = useGlobalLeaflet
+				? WINDOW_OR_GLOBAL.L
+				: await import('leaflet/dist/leaflet-src.esm')
+
+			const geoJson = await geoJsonFromCoverage(
+				props.covjson,
+				props.parameter,
+				props.palette,
+				props.paletteExtent,
+				props.time
+			)
+
+			leafletRef.value = geoJSON(geoJson, {
+				...options,
+				style: (feature) => ({
+					color: feature.properties.color,
+					fillOpacity: 1,
+					stroke: false,
+				}),
+				onEachFeature: (feature, layer) => {
+					layer.on('click', (e) => {
+						e.index = feature.properties.index
+						e.times = feature.properties.times
+						e.values = feature.properties.values
+						context.emit('click', e)
+					})
+				},
 			})
 
-			// TODO This should work, but it doesn't in my setup.
-			// But this is true of *any* popup, so it's not specific to a time series plot.
-			// leafletRef.value.bindPopup(new C.TimeSeriesPlot(props.covJson))
-
 			const listeners = remapEvents(context.attrs)
-			DomEventFunc.on(leafletRef.value, listeners)
-			propsBinder({}, leafletRef.value, props)
+			DomEvent.on(leafletRef.value, listeners)
 
+			propsBinder(methods, leafletRef.value, props)
 			addLayer({
 				...props,
+				...methods,
 				leafletObject: leafletRef.value,
 			})
 			ready.value = true
 			nextTick(() => context.emit('ready', leafletRef.value))
 		}
 
-		const setTime = () => {
-			if (Object.keys(leafletRef.value).length === 0) {
-				return
+		const setTime = (time) => {
+			const layers = leafletRef.value.getLayers()
+			for (let i in layers) {
+				const times = layers[i].feature.properties.times
+				const values = layers[i].feature.properties.values
+				const tIndex = indexOfNearest(
+					times.map((t) => asTime(t)),
+					asTime(time)
+				)
+				const value = values[tIndex]
+				layers[i].setStyle({
+					fillColor: props.palette.getColor(value, props.paletteExtent),
+				})
 			}
-			leafletRef.value.time = props.time
 		}
 
-		let DomEventFunc = null
-		const useGlobalLeaflet = inject(GLOBAL_LEAFLET_OPT)
 		onMounted(async () => {
-			const { DomEvent } = useGlobalLeaflet
-				? WINDOW_OR_GLOBAL.L
-				: await import('leaflet/dist/leaflet-src.esm')
-			DomEventFunc = DomEvent
-			loadCovJsonLayer()
+			await loadCovJsonLayer()
 
-			watch(() => props.covJson, loadCovJsonLayer)
+			watch(() => props.covjson, loadCovJsonLayer)
 			watch(() => props.time, setTime)
 		})
 
-		onUnmounted(() => {
-			if (Object.keys(leafletRef.value).length > 0) {
-				removeLayer({ leafletObject: leafletRef.value })
-			}
-		})
 		return { ready, leafletObject: leafletRef }
 	},
 	render() {
-		return render(this.ready, this.$slots)
+		if (this.ready && this.$slots.default) {
+			return h('div', { style: { display: 'none' } }, this.$slots.default())
+		}
 	},
 }
 </script>
