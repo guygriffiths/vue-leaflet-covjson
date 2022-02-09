@@ -1375,7 +1375,7 @@ export function generatePalette(colours, bands) {
 			let idx
 			if (val > extent[1]) {
 				if (extendMax) {
-					idx = palette.steps - 1
+					idx = bands - 1
 				} else {
 					return
 				}

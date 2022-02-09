@@ -22,7 +22,7 @@ export default {
 		const useGlobalLeaflet = inject(GLOBAL_LEAFLET_OPT)
 		const addLayer = inject('addLayer')
 
-		const { methods, options } = covJSONSetup(props, leafletRef)
+		const { methods, options } = covJSONSetup(props, leafletRef, context)
 
 		const loadCovJsonLayer = async () => {
 			if (!props.covjson || Object.keys(props.covjson).length === 0) {
@@ -101,6 +101,7 @@ export default {
 		if (this.ready && this.$slots.default) {
 			return h('div', { style: { display: 'none' } }, this.$slots.default())
 		}
+		return null
 	},
 }
 </script>

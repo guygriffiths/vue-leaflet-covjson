@@ -61,7 +61,7 @@ export const props = {
 	},
 }
 
-export const setup = (props, leafletRef) => {
+export const setup = (props, leafletRef, context) => {
 	const options = {
 		attribution: props.attribution,
 		pane: props.pane,
@@ -157,7 +157,13 @@ export const setup = (props, leafletRef) => {
 	return { options, methods }
 }
 
-export const geoJsonFromCoverage = async (cov, parameter, palette, extent, time) => {
+export const geoJsonFromCoverage = async (
+	cov,
+	parameter,
+	palette,
+	extent,
+	time
+) => {
 	const domain = await cov.loadDomain()
 	const projection = await loadProjection(domain)
 	const [projX, projY] = getHorizontalCRSComponents(domain)
@@ -188,7 +194,7 @@ export const geoJsonFromCoverage = async (cov, parameter, palette, extent, time)
 	const geoJson = []
 	for (let i = 0; i < polygonsLonLat.length; i++) {
 		const values = []
-		for(let t = 0; t < tAxis.values.length; t++) {
+		for (let t = 0; t < tAxis.values.length; t++) {
 			values.push(range.get({ t, composite: i }))
 		}
 
@@ -198,7 +204,7 @@ export const geoJsonFromCoverage = async (cov, parameter, palette, extent, time)
 				index: i,
 				color: palette.getColor(values[tIndex], extent),
 				values,
-				times: tVals.map(t => new Date(t)),
+				times: tVals.map((t) => new Date(t)),
 			},
 			geometry: {
 				type: 'Polygon',
