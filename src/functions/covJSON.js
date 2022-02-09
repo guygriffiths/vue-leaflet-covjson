@@ -157,23 +157,6 @@ export const setup = (props, leafletRef) => {
 	return { options, methods }
 }
 
-const _getColor = (val) => {
-	if (val === null) {
-		// no-data
-		return this._defaultColor
-	} else if (val === undefined) {
-		// not fixed to a param or z-coordinate
-		return 'rgba(0,0,0,0.5)'
-	} else {
-		// use a palette
-		let idx = this.getPaletteIndex(val)
-		let { red, green, blue } = this.palette
-		return `rgb(${Math.floor(red[idx])}, ${Math.floor(
-			green[idx]
-		)}, ${Math.floor(blue[idx])})`
-	}
-}
-
 export const geoJsonFromCoverage = async (cov, parameter, palette, extent, time) => {
 	const domain = await cov.loadDomain()
 	const projection = await loadProjection(domain)
