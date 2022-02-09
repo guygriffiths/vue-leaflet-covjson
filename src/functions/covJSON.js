@@ -9,7 +9,6 @@ import { turboPalette } from '../lib/palettes'
 
 export const props = {
 	covjson: {
-		type: Object,
 		required: true,
 	},
 	parameter: {
@@ -130,10 +129,6 @@ export const setup = (props, leafletRef, context) => {
 		removeLayer(layer) {
 			leafletRef.value.removeLayer(layer.leafletObject)
 		},
-		// setGeojson(newVal) {
-		// 	leafletRef.value.clearLayers()
-		// 	leafletRef.value.addData(newVal)
-		// },
 		getGeoJSONData() {
 			return leafletRef.value.toGeoJSON()
 		},

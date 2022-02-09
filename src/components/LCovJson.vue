@@ -30,7 +30,7 @@ export default {
 				return
 			}
 
-			const { geoJSON, DomEvent } = useGlobalLeaflet
+			const { geoJSON } = useGlobalLeaflet
 				? WINDOW_OR_GLOBAL.L
 				: await import('leaflet/dist/leaflet-src.esm')
 
@@ -59,9 +59,6 @@ export default {
 				},
 			})
 
-			const listeners = remapEvents(context.attrs)
-			DomEvent.on(leafletRef.value, listeners)
-
 			propsBinder(methods, leafletRef.value, props)
 			addLayer({
 				...props,
@@ -72,15 +69,16 @@ export default {
 			nextTick(() => context.emit('ready', leafletRef.value))
 		}
 
-		const setTime = (time) => {
+		const setColours = () => {
 			const layers = leafletRef.value.getLayers()
 			for (let i in layers) {
 				const times = layers[i].feature.properties.times
 				const values = layers[i].feature.properties.values
 				const tIndex = indexOfNearest(
 					times.map((t) => asTime(t)),
-					asTime(time)
+					asTime(props.time)
 				)
+				console.log(tIndex)
 				const value = values[tIndex]
 				layers[i].setStyle({
 					fillColor: props.palette.getColor(value, props.paletteExtent),
@@ -92,7 +90,9 @@ export default {
 			await loadCovJsonLayer()
 
 			watch(() => props.covjson, loadCovJsonLayer)
-			watch(() => props.time, setTime)
+			watch(() => props.time, setColours)
+			watch(() => props.palette, setColours)
+			watch(() => props.paletteExtent, setColours)
 		})
 
 		return { ready, leafletObject: leafletRef }
