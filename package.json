@@ -3,8 +3,6 @@
   "author": "Guy Griffiths",
   "version": "0.2.0",
   "private": false,
-  "main": "dist/vue-leaflet-covjson.cjs.js",
-  "unpkg": "dist/vue-leaflet-covjson.umd.js",
   "module": "dist/vue-leaflet-covjson.esm.js",
   "files": [
     "dist/",
