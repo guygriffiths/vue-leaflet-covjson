@@ -207,5 +207,5 @@ export const geoJsonFromCoverage = async (
 			},
 		})
 	}
-	return geoJson
+	return { geoJson, domain }
 }

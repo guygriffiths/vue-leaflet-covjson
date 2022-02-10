@@ -33,7 +33,7 @@ export default {
 				? WINDOW_OR_GLOBAL.L
 				: await import('leaflet/dist/leaflet-src.esm')
 
-			const geoJson = await geoJsonFromCoverage(
+			const { geoJson, domain } = await geoJsonFromCoverage(
 				props.covjson,
 				props.parameter,
 				props.palette,
@@ -53,6 +53,8 @@ export default {
 						e.index = feature.properties.index
 						e.times = feature.properties.times
 						e.values = feature.properties.values
+						e.target.domain = domain
+						e.target.parameter = props.covjson.parameters.get(props.parameter)
 						context.emit('click', e)
 					})
 				},
@@ -77,7 +79,6 @@ export default {
 					times.map((t) => asTime(t)),
 					asTime(props.time)
 				)
-				console.log(tIndex)
 				const value = values[tIndex]
 				layers[i].setStyle({
 					fillColor: props.palette.getColor(value, props.paletteExtent),
