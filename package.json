@@ -1,72 +1,36 @@
 {
-  "name": "vue-leaflet-covjson",
-  "author": "Guy Griffiths",
-  "version": "0.2.2",
-  "private": false,
-  "module": "dist/vue-leaflet-covjson.esm.js",
-  "files": [
-    "dist/",
-    "src/"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:the-iea/vue-leaflet-covjson.git"
-  },
-  "scripts": {
-    "build": "rollup -c rollup.config.js",
-    "lint": "vue-cli-service lint",
-    "prepublishOnly": "npm run lint && npm run build"
-  },
-  "dependencies": {
-    "@vue-leaflet/vue-leaflet": "^0.6.1",
-    "covutils": "^0.6.1",
-    "leaflet-coverage": "^0.9.1"
-  },
-  "peerDependencies": {
-    "leaflet": "^1.6.0",
-    "vue": "^3.0.0"
-  },
-  "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-plugin-eslint": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
-    "@vue/compiler-sfc": "^3.0.0",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^6.7.2",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-prettier": "^3.1.4",
-    "eslint-plugin-vue": "^7.0.0-0",
-    "leaflet": "^1.6.0",
-    "lint-staged": "^10.4.0",
-    "prettier": "^2.0.5",
-    "rollup": "^2.8.0",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-vue": "^6.0.0-beta.11",
-    "vue": "^3.0.0"
-  },
-  "lint-staged": {
-    "*.js": [
-      "eslint",
-      "git add"
-    ],
-    "*.vue": [
-      "eslint",
-      "git add"
-    ]
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/vue3-essential",
-      "plugin:prettier/recommended",
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
-    "rules": {}
-  }
+	"name": "vue-leaflet-covjson",
+	"version": "0.2.3",
+	"module": "dist/vue-leaflet-covjson.es.js",
+	"files": [
+		"src/",
+		"dist/"
+	],
+	"scripts": {
+		"build": "vite build",
+		"lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",
+		"format": "prettier .  --write"
+	},
+	"dependencies": {
+		"@vue-leaflet/vue-leaflet": "^0.6.1",
+		"covutils": "^0.6.1"
+	},
+	"peerDependencies": {
+		"vue": "^3.2.25",
+		"leaflet": "^1.6.0"
+	},
+	"devDependencies": {
+		"@typescript-eslint/parser": "^5.9.0",
+		"@vitejs/plugin-vue": "^2.0.0",
+		"@vue-leaflet/vue-leaflet": "^0.6.1",
+		"eslint": "^8.6.0",
+		"eslint-config-prettier": "^8.3.0",
+		"eslint-plugin-vue": "^8.2.0",
+		"prettier": "2.5.1",
+		"sass": "^1.45.0",
+		"sass-loader": "^12.4.0",
+		"typescript": "^4.4.4",
+		"vite": "^2.7.2",
+		"vue-tsc": "^0.29.8"
+	}
 }

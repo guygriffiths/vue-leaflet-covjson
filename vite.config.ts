@@ -14,7 +14,14 @@ export default defineConfig(({ command }) => ({
 		rollupOptions: {
 			// make sure to externalize deps that shouldn't be bundled
 			// into your library
-			external: ['vue', '@vue-leaflet/vue-leaflet', 'leaflet-coverage', 'covutils']
+			external: [
+				'vue',
+				'leaflet/dist/leaflet-src.esm',
+				'leaflet',
+				'leaflet-coverage',
+				'covutils',
+				'@vue-leaflet/vue-leaflet/src/utils.js',
+			],
 		},
 	},
 	resolve: {
