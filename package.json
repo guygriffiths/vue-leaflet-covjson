@@ -1,6 +1,6 @@
 {
 	"name": "vue-leaflet-covjson",
-	"version": "0.2.3",
+	"version": "0.3.0",
 	"module": "dist/vue-leaflet-covjson.es.js",
 	"files": [
 		"src/",
@@ -16,8 +16,8 @@
 		"covutils": "^0.6.1"
 	},
 	"peerDependencies": {
-		"vue": "^3.2.25",
-		"leaflet": "^1.6.0"
+		"leaflet": "^1.6.0",
+		"vue": "^3.2.25"
 	},
 	"devDependencies": {
 		"@typescript-eslint/parser": "^5.9.0",

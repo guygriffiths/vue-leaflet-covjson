@@ -24,7 +24,11 @@ export default {
 		const { methods, options } = covJSONSetup(props, leafletRef, context)
 
 		const loadCovJsonLayer = async () => {
-			if (!props.covjson || Object.keys(props.covjson).length === 0) {
+			if (
+				!props.covjson ||
+				Object.keys(props.covjson).length === 0 ||
+				!props.parameter
+			) {
 				// No coverageJson to load
 				return
 			}
@@ -32,7 +36,6 @@ export default {
 			const { geoJSON } = useGlobalLeaflet
 				? WINDOW_OR_GLOBAL.L
 				: await import('leaflet/dist/leaflet-src.esm')
-
 			const { geoJson, domain } = await geoJsonFromCoverage(
 				props.covjson,
 				props.parameter,
@@ -40,7 +43,6 @@ export default {
 				props.paletteExtent,
 				props.time
 			)
-
 			leafletRef.value = geoJSON(geoJson, {
 				...options,
 				style: (feature) => ({
@@ -90,6 +92,7 @@ export default {
 			await loadCovJsonLayer()
 
 			watch(() => props.covjson, loadCovJsonLayer)
+			watch(() => props.parameter, loadCovJsonLayer)
 			watch(() => props.time, setColours)
 			watch(() => props.palette, setColours)
 			watch(() => props.paletteExtent, setColours)
