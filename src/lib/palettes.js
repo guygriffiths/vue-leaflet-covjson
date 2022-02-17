@@ -1365,6 +1365,7 @@ const turboData = [
 ]
 
 export function generatePalette(colours, bands) {
+	
 	const targetPalette = {
 		steps: bands,
 		red: [],
@@ -1373,13 +1374,13 @@ export function generatePalette(colours, bands) {
 		getColor(val, extent, extendMin = true, extendMax = true) {
 			if (val === null) return
 			let idx
-			if (val > extent[1]) {
+			if (val >= extent[1]) {
 				if (extendMax) {
 					idx = bands - 1
 				} else {
 					return
 				}
-			} else if (val < extent[0]) {
+			} else if (val <= extent[0]) {
 				if (extendMin) {
 					idx = 0
 				} else {
@@ -1398,6 +1399,15 @@ export function generatePalette(colours, bands) {
 			}
 			return `rgb(${this.red[idx]},${this.green[idx]},${this.blue[idx]})`
 		},
+		reverse() {
+			return {
+				steps: this.steps,
+				getColor: this.getColor,
+				red: this.red.slice().reverse(),
+				green: this.green.slice().reverse(),
+				blue: this.blue.slice().reverse(),
+			}
+		}
 	}
 
 	targetPalette.red.push(colours[0].r)
